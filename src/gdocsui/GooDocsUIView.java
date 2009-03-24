@@ -486,7 +486,7 @@ public class GooDocsUIView extends FrameView {
             // the Swing GUI from here.
             if (download && (selectedRow != -1)) {
                 DocumentListEntry entry = feed.getEntries().get(selectedRow);
-                String docType = DocumentTools.getObjectIdPrefix(DocumentTools.getShortId(entry));
+                //String docType = DocumentTools.getObjectIdPrefix(DocumentTools.getShortId(entry));
                 String shortId = DocumentTools.getShortId(entry);
                 setMessage("Downloading " + selectedFile.getName() + "...");
                 documentList.downloadFile(shortId, selectedFile.getCanonicalPath(), DocumentList.getDownloadFormat(shortId, extension));
