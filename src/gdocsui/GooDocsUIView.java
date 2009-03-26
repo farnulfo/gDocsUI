@@ -362,59 +362,6 @@ public class GooDocsUIView extends FrameView {
         }
     }
 
-    @Action
-    public Task download() {
-        return new DownloadTask(getApplication());
-    }
-
-    private class DownloadTask extends org.jdesktop.application.Task<Object, Void> {
-
-        private int selectedRow;
-
-        DownloadTask(org.jdesktop.application.Application app) {
-            // Runs on the EDT.  Copy GUI state that
-            // doInBackground() depends on from parameters
-            // to DownloadTask fields, here.
-            super(app);
-            selectedRow = jTable1.getSelectedRow();
-        }
-
-        @Override
-        protected Object doInBackground() throws IOException, MalformedURLException, ServiceException, DocumentListException {
-            // Your Task's code here.  This method runs
-            // on a background thread, so don't reference
-            // the Swing GUI from here.
-            if (selectedRow != -1) {
-                DocumentListEntry entry = feed.getEntries().get(selectedRow);
-                System.out.println(entry);
-
-                String docType = DocumentTools.getObjectIdPrefix(DocumentTools.getShortId(entry));
-
-                String extension = null;
-                if (docType.equals("spreadsheet")) {
-                    extension = "xls";
-                } else if (docType.equals("document")) {
-                    extension = "doc";
-                } else if (docType.equals("pdf")) {
-                    extension = "pdf";
-                } else if (docType.equals("presentation")) {
-                    extension = "ppt";
-                }
-
-                String shortId = DocumentTools.getShortId(entry);
-
-                documentList.downloadFile(shortId, entry.getTitle().getPlainText() + "." + extension, DocumentList.getDownloadFormat(shortId, extension));
-            }
-            return null;  // return your result
-        }
-
-        @Override
-        protected void succeeded(Object result) {
-            // Runs on the EDT.  Update the GUI based on
-            // the result computed by doInBackground().
-        }
-    }
-
     @Action(block = Task.BlockingScope.ACTION)
     public Task downloadAs() throws DocumentListException {
         return new DownloadAsTask(getApplication());
