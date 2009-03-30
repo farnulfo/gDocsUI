@@ -18,6 +18,8 @@ import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import javax.swing.Timer;
 import javax.swing.Icon;
@@ -26,6 +28,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import sample.docs.DocumentList;
 import sample.docs.DocumentListException;
 
@@ -388,21 +392,66 @@ public class GooDocsUIView extends FrameView {
                 String docType = DocumentTools.getObjectIdPrefix(DocumentTools.getShortId(entry));
 
 
-                if (docType.equals("spreadsheet")) {
-                    extension = "xls";
-                } else if (docType.equals("document")) {
-                    extension = "doc";
-                } else if (docType.equals("pdf")) {
-                    extension = "pdf";
-                } else if (docType.equals("presentation")) {
-                    extension = "ppt";
-                }
+                String proposedFilename = null;
+                File sFile = null;
 
-                String proposedFilename = entry.getTitle().getPlainText() + "." + extension;
-
-                JFileChooserOverwrite chooser = new JFileChooserOverwrite();
-                chooser.setSelectedFile(new File(proposedFilename));
+                final JFileChooserOverwrite chooser = new JFileChooserOverwrite();
                 chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                chooser.setAcceptAllFileFilterUsed(false);
+
+                String preferredExtension = null;
+                String extensions[];
+                if (docType.equals("spreadsheet")) {
+                    extensions = new String[]{"xls", "ods", "pdf", "csv", "tsv", "html"};
+                    preferredExtension = "xls";
+                } else if (docType.equals("document")) {
+                    extensions = new String[]{"doc", "txt", "odt", "pdf", "png", "rtf", "html"};
+                    preferredExtension = "doc";
+                } else if (docType.equals("pdf")) {
+                    extensions = new String[]{"pdf"};
+                    preferredExtension = "pdf";
+                } else if (docType.equals("presentation")) {
+                    extensions = new String[]{"pdf", "ppt", "swf"};
+                    preferredExtension = "ppt";
+                } else {
+                    throw new IllegalArgumentException("Unknown docType '" + docType + "'");
+                }
+                proposedFilename = entry.getTitle().getPlainText() + "." + preferredExtension;
+                sFile = new File(proposedFilename);
+                prepareJFileChooser(chooser, sFile, extensions, preferredExtension);
+
+                final File proposedFile = sFile;
+
+                // debug
+                chooser.addPropertyChangeListener(new PropertyChangeListener() {
+
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        System.out.println("Property name=" + evt.getPropertyName() + ", oldValue=" + evt.getOldValue() + ", newValue=" + evt.getNewValue());
+                        System.out.println("getSelectedFile()=" + chooser.getSelectedFile());
+                    }
+                });
+
+                chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        Object o = evt.getNewValue();
+                        if (o instanceof FileNameExtensionFilter) {
+                            FileNameExtensionFilter filter = (FileNameExtensionFilter) o;
+
+                            String ex = filter.getExtensions()[0];
+
+                            File selectedFile = chooser.getSelectedFile();
+                            if (selectedFile == null) {
+                                selectedFile = proposedFile;
+                            }
+                            String path = selectedFile.getName();
+                            path = path.substring(0, path.lastIndexOf("."));
+
+                            chooser.setSelectedFile(new File(path + "." + ex));
+                        }
+                    }
+                });
+
 
                 // Show the dialog; wait until dialog is closed
                 int result = chooser.showSaveDialog(getComponent());
@@ -412,7 +461,10 @@ public class GooDocsUIView extends FrameView {
                     case JFileChooser.APPROVE_OPTION:
                         // Approve (Open or Save) was clicked
                         selectedFile = chooser.getSelectedFile();
-                        System.out.println(selectedFile);
+                        System.out.println("getSelectedFile() = " + selectedFile);
+                        System.out.println("getFileFilter() = " + chooser.getFileFilter());
+                        extension = ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0];
+
                         download = true;
                         break;
                     case JFileChooser.CANCEL_OPTION:
@@ -424,6 +476,20 @@ public class GooDocsUIView extends FrameView {
                 }
 
             }
+        }
+
+        public void prepareJFileChooser(final JFileChooserOverwrite chooser, File sFile, String[] extensions, String preferredExtension) {
+            chooser.setSelectedFile(sFile);
+            FileFilter ff = null;
+            for (int i = 0; i < extensions.length; i++) {
+                String ex = extensions[i];
+                FileNameExtensionFilter fnef = new FileNameExtensionFilter(ex, ex);
+                if (ex.equals(preferredExtension)) {
+                    ff = fnef;
+                }
+                chooser.addChoosableFileFilter(fnef);
+            }
+            chooser.setFileFilter(ff);
         }
 
         @Override
