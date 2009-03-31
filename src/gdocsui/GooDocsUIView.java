@@ -411,7 +411,7 @@ public class GooDocsUIView extends FrameView {
                     extensions = new String[]{"pdf"};
                     preferredExtension = "pdf";
                 } else if (docType.equals("presentation")) {
-                    extensions = new String[]{"pdf", "ppt", "swf"};
+                    extensions = new String[]{"pdf", "ppt", "swf", "png"};
                     preferredExtension = "ppt";
                 } else {
                     throw new IllegalArgumentException("Unknown docType '" + docType + "'");

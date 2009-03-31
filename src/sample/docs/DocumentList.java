@@ -112,6 +112,7 @@ public class DocumentList {
     DOWNLOAD_PRESENTATION_FORMATS.put("pdf", "pdf");
     DOWNLOAD_PRESENTATION_FORMATS.put("ppt", "ppt");
     DOWNLOAD_PRESENTATION_FORMATS.put("swf", "swf");
+    DOWNLOAD_PRESENTATION_FORMATS.put("png", "png");
   }
 
   private static final Map<String, String> DOWNLOAD_SPREADSHEET_FORMATS;
