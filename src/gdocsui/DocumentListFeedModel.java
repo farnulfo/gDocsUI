@@ -40,9 +40,13 @@ public class DocumentListFeedModel extends AbstractTableModel {
     @Override
     public String getColumnName(int column) {
         String name = "";
-        switch(column) {
-            case 0 : name = "Name"; break;
-            case 1 : name = "Last Viewed"; break;
+        switch (column) {
+            case 0:
+                name = "Name";
+                break;
+            case 1:
+                name = "Last Viewed";
+                break;
         }
         return name;
     }
