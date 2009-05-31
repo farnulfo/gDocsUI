@@ -30,6 +30,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import sample.docs.DocumentList;
 import sample.docs.DocumentListException;
 
@@ -43,14 +47,14 @@ public class GooDocsUIView extends FrameView {
 
         initComponents();
 
-        jTable1.setModel(new DocumentListFeedModel(new DocumentListFeed()));
+        jTable1.setModel(new DocumentListFeedTableModel(new DocumentListFeed()));
         jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
                 jBDownload.setEnabled(!((ListSelectionModel) e.getSource()).isSelectionEmpty());
             }
         });
-
+        jTable1.setColumnModel(createColumnModel());
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
@@ -354,7 +358,7 @@ public class GooDocsUIView extends FrameView {
                     System.out.println(entry.getTitle());
                     System.out.println(entry.getId());
                 }
-                jTable1.setModel(new DocumentListFeedModel(feed));
+                ((DocumentListFeedTableModel)jTable1.getModel()).setDocumentListFeed(feed);
             }
             return null;  // return your result
         }
@@ -502,6 +506,7 @@ public class GooDocsUIView extends FrameView {
                 //String docType = DocumentTools.getObjectIdPrefix(DocumentTools.getShortId(entry));
                 String shortId = DocumentTools.getShortId(entry);
                 setMessage("Downloading " + selectedFile.getName() + "...");
+                // TODO: fix pdf download
                 documentList.downloadFile(shortId, selectedFile.getCanonicalPath(), DocumentList.getDownloadFormat(shortId, extension));
                 setMessage("Finished downloading " + selectedFile.getName() + ".");
             }
@@ -513,6 +518,24 @@ public class GooDocsUIView extends FrameView {
             // Runs on the EDT.  Update the GUI based on
             // the result computed by doInBackground().
         }
+    }
+   protected TableColumnModel createColumnModel() {
+        DefaultTableColumnModel columnModel = new DefaultTableColumnModel();
+
+        DocumentTitleRenderer documentTitleRenderer = new DocumentTitleRenderer();
+
+        TableColumn column = new TableColumn();
+        column.setModelIndex(DocumentListFeedTableModel.TITLE_COLUMN);
+        column.setHeaderValue("Title");
+        column.setCellRenderer(documentTitleRenderer);
+        columnModel.addColumn(column);
+
+        column = new TableColumn();
+        column.setModelIndex(DocumentListFeedTableModel.LAST_VIEWED_COLUMN);
+        column.setHeaderValue("Last Viewed");
+        columnModel.addColumn(column);
+
+        return columnModel;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
