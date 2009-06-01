@@ -43,7 +43,6 @@ public class DocumentTitleRenderer extends DefaultTableCellRenderer {
             boolean isSelected, boolean hasFocus, int row, int column) {
 
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        Object v = value;
         TableModel model = table.getModel();
         String type = (String) model.getValueAt(table.convertRowIndexToModel(row), DocumentListFeedTableModel.TYPE_COLUMN);
         ImageIcon icon = null;
