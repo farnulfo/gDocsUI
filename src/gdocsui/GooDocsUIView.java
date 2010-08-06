@@ -357,15 +357,18 @@ public class GooDocsUIView extends FrameView {
                     System.out.println(entry.getTitle());
                     System.out.println(entry.getId());
                 }
-                ((DocumentListFeedTableModel)jTable1.getModel()).setDocumentListFeed(feed);
             }
-            return null;  // return your result
+            return feed;  // return your result
         }
 
         @Override
         protected void succeeded(Object result) {
             // Runs on the EDT.  Update the GUI based on
             // the result computed by doInBackground().
+            if (result != null) {
+               feed = (DocumentListFeed) result;
+               ((DocumentListFeedTableModel)jTable1.getModel()).setDocumentListFeed(feed);
+            }
         }
     }
 
