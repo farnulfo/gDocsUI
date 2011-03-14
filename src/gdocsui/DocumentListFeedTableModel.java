@@ -25,10 +25,12 @@ public class DocumentListFeedTableModel extends AbstractTableModel {
 
     public DocumentListFeedTableModel(DocumentListFeed documentListFeed) {
         this.documentListFeed = documentListFeed;
+        fireTableDataChanged();
     }
 
     public void setDocumentListFeed(DocumentListFeed documentListFeed) {
         this.documentListFeed = documentListFeed;
+        fireTableDataChanged();
     }
 
     public DocumentListFeed getDocumentListFeed() {
